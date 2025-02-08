@@ -1,12 +1,11 @@
-import React, { useContext } from 'react';
-import {Text, View, TouchableOpacity, StyleSheet, Alert} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Text, View, TouchableOpacity, StyleSheet, Alert, Image} from 'react-native';
 import { launchCamera, launchImageLibrary, ImagePickerResponse } from 'react-native-image-picker';
-import { useLinkTo } from '@react-navigation/native';
-import { ImageContext } from '../App';
+import recognizeText,{ type OCRObservation} from '../jsUtils/OCRmodule';
 
 export default function HomeScreen() {
-  const linkTo = useLinkTo();
-  const { setSelectedImage } = useContext(ImageContext);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [observations, setObservations] = useState<OCRObservation[]>([]);
   
   const handleChoosePhoto = () => {
     Alert.alert(
@@ -33,29 +32,52 @@ export default function HomeScreen() {
     );
   };
 
+  const renderObservationsAsText = () => {
+    return observations.map((observation, index) => (
+      <Text key={index}>
+        {observation.text} ({observation.bounds[0]}, {observation.bounds[1]}, {observation.bounds[2]}, {observation.bounds[3]})
+      </Text>
+    ));
+  }
+
+  useEffect(() => {
+    if (selectedImage) {
+      const result = await recognizeText(selectedImage);
+      setObservations(result);
+    }
+  }, [selectedImage]);
+
   const handlePickerResponse = (response: ImagePickerResponse) => {
     if (response.assets?.[0]?.base64) {
       setSelectedImage(`data:image/jpeg;base64,${response.assets[0].base64}`);
-      linkTo('ImageDetails');
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.disclaimer}>
-        Take or select a picture of the list of ingredients.
-      </Text>
+  if (selectedImage) {
+    return (
+      <View style={styles.container}>      
+        <Image source={{ uri: selectedImage }} style={{ flex: 1 }} />
+        <View style={styles.divider} />
+        {renderObservationsAsText()}
+      </View>
+    )
+  }
 
-      {/* Image Picker Section */}
-      <TouchableOpacity
-        style={styles.pickerButton}
-        onPress={handleChoosePhoto}
-      >
+  return (
+      <View style={styles.container}>
+        <Text style={styles.disclaimer}>
+          Take or select a picture of the list of ingredients.
+        </Text>
+
+        <TouchableOpacity
+          style={styles.pickerButton}
+          onPress={handleChoosePhoto}
+        >
         <Text style={styles.buttonText}>Select Photo</Text>
       </TouchableOpacity>
     </View>
-  );
-}
+  )
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -81,5 +103,10 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#ccc',
+    marginVertical: 20,
   }
 });
