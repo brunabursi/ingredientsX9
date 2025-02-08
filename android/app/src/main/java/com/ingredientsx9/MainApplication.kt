@@ -20,6 +20,7 @@ class MainApplication : Application(), ReactApplication {
             PackageList(this).packages.apply {
               // Packages that cannot be autolinked yet can be added manually here, for example:
               // add(MyReactNativePackage())
+              add(OCRModulePackage())
             }
 
         override fun getJSMainModuleName(): String = "index"
@@ -41,4 +42,12 @@ class MainApplication : Application(), ReactApplication {
       load()
     }
   }
+}
+
+class OCRModulePackage : ReactPackage {
+    override fun createViewManagers(reactContext: ReactApplicationContext) =
+        emptyList<ViewManager<*, *>>()
+
+    override fun createNativeModules(reactContext: ReactApplicationContext) =
+        listOf(OCRModuleAndroid(reactContext))
 }
