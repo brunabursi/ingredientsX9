@@ -5,6 +5,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import { useLinkTo } from '@react-navigation/native';
 import HomeScreen from './screens/HomeScreen';
 import SettingsScreen from './screens/SettingsScreen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 type RootStackParamList = {
   homeScreen: undefined;
@@ -17,7 +18,8 @@ export default function App() {
   const linkTo = useLinkTo();
 
   return (
-    <NavigationContainer>
+    <SafeAreaProvider>
+      <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
             headerShown: true,
@@ -32,6 +34,7 @@ export default function App() {
           <Stack.Screen name="homeScreen" component={HomeScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
         </Stack.Navigator>
-    </NavigationContainer>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
