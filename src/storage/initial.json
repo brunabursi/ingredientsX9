@@ -1,0 +1,98 @@
+[
+  {
+    "name": "Trigo",
+    "riskLevel": "high",
+    "description": "Ingrediente básico contendo glúten.",
+    "category": "gluten"
+  },
+  {
+    "name": "Cevada",
+    "riskLevel": "high",
+    "description": "Cereal com glúten frequentemente encontrado em cervejas e malte.",
+    "category": "gluten"
+  },
+  {
+    "name": "Centeio",
+    "riskLevel": "high",
+    "description": "Grão rico em glúten frequentemente usado em pães.",
+    "category": "gluten"
+  },
+  {
+    "name": "Malte",
+    "riskLevel": "high",
+    "description": "Derivado geralmente da cevada, utilizado em bebidas e doces.",
+    "category": "gluten"
+  },
+  {
+    "name": "Aveia",
+    "riskLevel": "medium",
+    "description": "Pode conter glúten por contaminação cruzada; só é segura se explicitamente indicada como sem glúten.",
+    "category": "gluten"
+  },
+  {
+    "name": "Semolina",
+    "riskLevel": "high",
+    "description": "Derivado do trigo com alta concentração de glúten.",
+    "category": "gluten"
+  },
+  {
+    "name": "Triticale",
+    "riskLevel": "high",
+    "description": "Híbrido de trigo e centeio, sempre contém glúten.",
+    "category": "gluten"
+  },
+  {
+    "name": "Espelta",
+    "riskLevel": "high",
+    "description": "Espécie antiga de trigo com glúten.",
+    "category": "gluten"
+  },
+  {
+    "name": "Seitan",
+    "riskLevel": "high",
+    "description": "Feito diretamente do glúten do trigo.",
+    "category": "gluten"
+  },
+  {
+    "name": "Levedo de cerveja",
+    "riskLevel": "high",
+    "description": "Geralmente derivado da cevada, contendo glúten.",
+    "category": "gluten"
+  },
+  {
+    "name": "shoyu",
+    "riskLevel": "high",
+    "description": "Molho de soja tradicional contendo trigo.",
+    "category": "gluten"
+  },
+  {
+    "name": "Xilitol",
+    "riskLevel": "medium",
+    "description": "Adoçante não calórico frequentemente usado como substituto do açúcar.",
+    "category": "sugar alcohol"
+  },
+  {
+    "name": "Eritritol",
+    "riskLevel": "medium",
+    "description": "Adoçante não calórico popular por baixo impacto glicêmico.",
+    "category": "sugar alcohol"
+  },
+  {
+    "name": "Maltitol",
+    "riskLevel": "medium",
+    "description": "Usado frequentemente em doces e chocolates sem açúcar.",
+    "category": "sugar alcohol"
+  },
+  {
+    "name": "Sorbitol",
+    "riskLevel": "medium",
+    "description": "Adoçante usado em chicletes e balas dietéticas.",
+    "category": "sugar alcohol"
+  },
+  {
+    "name": "Manitol",
+    "riskLevel": "medium",
+    "description": "Encontrado em doces sem açúcar e alimentos dietéticos.",
+    "category": "sugar alcohol"
+  }
+]
