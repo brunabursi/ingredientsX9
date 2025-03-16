@@ -1,22 +1,20 @@
 import React from 'react';
-import {Button, StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import { useLinkTo } from '@react-navigation/native';
 import HomeScreen from './src/screens/HomeScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useInitializeDb } from './src/hooks/db';
 
 type RootStackParamList = {
-  homeScreen: undefined;
+  X9: undefined;
   Settings: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
-  const linkTo = useLinkTo();
   const {error, databaseInitialized} = useInitializeDb();
 
   if (error) {
@@ -38,18 +36,8 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: true,
-            headerRight: () => (
-              <Button
-                title="Settings"
-                onPress={() => linkTo('Settings') } 
-              />
-            ),
-          }}
-        >
-          <Stack.Screen name="homeScreen" component={HomeScreen} />
+        <Stack.Navigator>
+          <Stack.Screen name="X9" component={HomeScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
