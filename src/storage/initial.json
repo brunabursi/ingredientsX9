@@ -69,30 +69,30 @@
     "name": "Xilitol",
     "riskLevel": "medium",
     "description": "Adoçante não calórico frequentemente usado como substituto do açúcar.",
-    "category": "sugar alcohol"
+    "category": "sugar_alcohol"
   },
   {
     "name": "Eritritol",
     "riskLevel": "medium",
     "description": "Adoçante não calórico popular por baixo impacto glicêmico.",
-    "category": "sugar alcohol"
+    "category": "sugar_alcohol"
   },
   {
     "name": "Maltitol",
     "riskLevel": "medium",
     "description": "Usado frequentemente em doces e chocolates sem açúcar.",
-    "category": "sugar alcohol"
+    "category": "sugar_alcohol"
   },
   {
     "name": "Sorbitol",
     "riskLevel": "medium",
     "description": "Adoçante usado em chicletes e balas dietéticas.",
-    "category": "sugar alcohol"
+    "category": "sugar_alcohol"
   },
   {
     "name": "Manitol",
     "riskLevel": "medium",
     "description": "Encontrado em doces sem açúcar e alimentos dietéticos.",
-    "category": "sugar alcohol"
+    "category": "sugar_alcohol"
   }
 ]
