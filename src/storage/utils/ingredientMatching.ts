@@ -17,22 +17,39 @@ function removeDuplicates(ingredients: string[]): string[] {
   return ingredients.filter((ingredient, index) => ingredients.indexOf(ingredient) === index);
 }
 
-export async function matchIngredientsByName(ingredientName: string[], categories:string[]): Promise<IngredientsByCategory | null> {
+// Simple memoization cache
+const memoCache = new Map<string, IngredientsByCategory>();
+
+export async function matchIngredientsByName(ingredientName: string[], categories: string[]): Promise<IngredientsByCategory | null> {
+  // Create a cache key from the sorted inputs
+  const cacheKey = JSON.stringify({
+    ingredients: removeDuplicates(ingredientName).sort(),
+    categories: [...categories].sort()
+  });
+  
+  // Check cache first
+  if (memoCache.has(cacheKey)) {
+    return memoCache.get(cacheKey)!;
+  }
+  
   try {
     const allIngredients = await model.fetchIngredientsByCategory(categories);
-    console.log(allIngredients)
     const matchedIngredients: IngredientLookup[] = [];
 
     for (const name of removeDuplicates(ingredientName)) {
       for (const ingredient of allIngredients) {
-        if (compareNames(name, ingredient.ingredientName)) {
+        if (compareNames(name, ingredient.name)) {
           matchedIngredients.push(ingredient);
           break;
         }
       }
     }
 
-    return groupIngredientsByCategory(matchedIngredients)
+    const result = groupIngredientsByCategory(matchedIngredients);
+    
+    // Store in cache
+    memoCache.set(cacheKey, result);
+    return result;
   } catch(error) {
     console.error('Error matching ingredient by name:', error);
     return null;
