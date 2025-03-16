@@ -6,20 +6,39 @@ import { matchIngredientsByName } from '../storage/utils/ingredientMatching';
 import ObservationGroup from '../components/ObservationGroup';
 import { IngredientsByCategory } from '../storage/utils/ingredientMatching';
 import {ingredientsCategoriesStore} from '../store';
+import { StackScreenProps } from '@react-navigation/stack';
 
 function extractWords(observations: OCRObservation[]): string[] {
   const words: string[] = [];
   observations.forEach(observation => {
-    const observationWords = observation.text.split(' ');
-    words.push(...observationWords);
+    words.push(...observation.text.split(' '));
   });
   return words;
 }
 
-export default function HomeScreen() {
+type HomeScreenProps = StackScreenProps<any, 'X9'>;
+
+export default function HomeScreen({navigation}: HomeScreenProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [matchedObservations, setMatchedObservations] = useState<IngredientsByCategory>({});
-  const {categories} = ingredientsCategoriesStore();
+  const {categories, fetch: fetchCategories} = ingredientsCategoriesStore();
+
+  useEffect(() => {
+    fetchCategories()
+    navigation.setOptions({
+      headerRight: () => (
+        <Button
+          onPress={() => navigation.navigate('Settings')}
+          title="Settings"
+        />
+      ),
+    });
+  }, [navigation]);
+
+  const reset = () => {
+    setSelectedImage(null);
+    setMatchedObservations({});
+  }
 
   const getMatchedCategories = (matchedItens: IngredientsByCategory) :string[] => {
     return Object.keys(matchedItens);
@@ -41,32 +60,39 @@ export default function HomeScreen() {
         }
       })();
     }
-  }, [selectedImage]);
+  }, [selectedImage, categories]);
 
   return (
-      <View style={styles.container}>
-        {selectedImage ? (
-          <ScrollView style={styles.scrollView}>
-            <Image 
-              source={{ uri: selectedImage }} 
-              style={styles.selectedImage}
-              resizeMode="contain"
-            />
-            <View style={styles.divider} />
-            
-            {getMatchedCategories(matchedObservations).map((cat, index) => (
-              <ObservationGroup category={cat} observations={matchedObservations[cat]} key={index} />
-            ))}
+      categories?.length === 0 ? (
+        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+          <Text>No categories selected. Please select some categories in settings screen.</Text>
+          <Button title='Go to settings' onPress={() => navigation.navigate('Settings')} />
+        </View>
+      ) : (
+        <View style={styles.container}>
+          {selectedImage ? (
+            <ScrollView style={styles.scrollView}>
+              <Image 
+                source={{ uri: selectedImage }} 
+                style={styles.selectedImage}
+                resizeMode="contain"
+              />
+              <View style={styles.divider} />
+              
+              {getMatchedCategories(matchedObservations).map((cat, index) => (
+                <ObservationGroup category={cat} observations={matchedObservations[cat]} key={index} />
+              ))}
 
-            <Button onPress={() => setSelectedImage(null)} title="Reset" />
-          </ScrollView>
-        ) : (
-          <View style={{flex: 1, justifyContent: 'center'}}>
-            <Text style={{textAlign: 'center', marginBottom: 20}}>Select an image to analyze:</Text>
-            <ImagePicker setSelectedImage={setSelectedImage} />
-          </View>
-        )}
-    </View>
+              <Button onPress={reset} title="Reset" />
+            </ScrollView>
+          ) : (
+            <View style={{flex: 1, justifyContent: 'center'}}>
+              <Text style={{textAlign: 'center', marginBottom: 20}}>Select an image to analyze:</Text>
+              <ImagePicker setSelectedImage={setSelectedImage} />
+            </View>
+          )}
+      </View>
+      )
   )
 };
 

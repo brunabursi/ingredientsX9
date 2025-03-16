@@ -15,7 +15,9 @@ export default function SettingsScreen() {
   }
 
   const fetchCategories = async () => {
+    console.log('Fetching categories...');
     const categories = await model.fetchCategories();
+    console.log('Fetched categories:', categories);
     setAvailableCats(categories);
     setLoading(false);
   }
@@ -45,9 +47,10 @@ export default function SettingsScreen() {
               onPress={() => toggleCategory(cat)}
               style={isSelected(cat) ? styles.selectedCategory : styles.category}
             >
-              {cat}
+              <Text>{cat}</Text>
             </TouchableOpacity>
           ))}
+          {availableCats.length === 0 ? <Text>No categories available</Text> : null}
         </View>
       )}
     </View>
