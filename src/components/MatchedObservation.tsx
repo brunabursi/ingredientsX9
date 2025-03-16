@@ -10,14 +10,14 @@ function capitalize(str: string) {
   }
 
 const MatchedObservation = ({ observation }: { observation: IngredientLookup }) => {
-  const [active, setActive] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   return (
-    <TouchableOpacity onPress={() => setActive(!active)} style={active ? styles.expanded : null}>
+    <TouchableOpacity onPress={() => setExpanded(!expanded)} style={expanded ? styles.expanded : null}>
       <Text style={styles.observation}>
-        {capitalize(observation.ingredientName)} 
+        {capitalize(observation.name)} 
       </Text>
-      {active && (
+      {expanded && (
         <Text>
           {observation.description}
         </Text>
