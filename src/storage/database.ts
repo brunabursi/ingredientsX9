@@ -1,5 +1,6 @@
 import SQLite, { SQLiteDatabase } from 'react-native-sqlite-storage';
-import glutenData from './initial.json'
+import { IngredientsLookupModel } from './models/ingredientsLookup';
+import initialData from './initial.json';
 
 // Enable debugging in development
 SQLite.DEBUG(true);
@@ -35,9 +36,32 @@ export class DatabaseManager {
       });
       console.log('Database initialized');
       await this.createTables();
+      await this.seed();
     } catch (error) {
       console.error('Failed to initialize database:', error);
       throw new DatabaseInitializationError(`Failed to initialize database: ${error}`);
+    }
+  }
+
+  /**
+   * Seed the database with initial data
+   */
+  private async seed(): Promise<void> {
+    if (!this.database) {
+      throw new DatabaseInitializationError('Database not initialized');
+    }
+    for (const item of initialData) {
+      try {
+        await this.database.executeSql(`
+          INSERT INTO ingredients_lookup (name, riskLevel, description, category)
+          VALUES (?, ?, ?, ?)`,
+          [item.name, item.riskLevel, item.description, item.category]
+        );
+        console.log('DB:created item:', item);
+      } catch (error) {
+        console.error('Error seeding database:', error);
+        throw error;
+      }
     }
   }
 
@@ -53,10 +77,14 @@ export class DatabaseManager {
     const queries = [
       `CREATE TABLE IF NOT EXISTS ingredients_lookup (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        ingredientName TEXT NOT NULL,
+        name TEXT NOT NULL,
         riskLevel TEXT,
         description TEXT,
         category TEXT
+      )`,
+      `CREATE TABLE IF NOT EXISTS user_categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL
       )`
     ];
 
