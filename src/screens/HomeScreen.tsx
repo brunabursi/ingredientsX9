@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Text, View, StyleSheet, Alert, Image, ScrollView, Button} from 'react-native';
+import {Text, View, StyleSheet, Alert, Image, ScrollView, Button, TextInput} from 'react-native';
 import ImagePicker from '../components/ImagePicker';
 import recognizeText,{ type OCRObservation} from '../../jsUtils/OCRmodule';
 import { matchIngredientsByName } from '../storage/utils/ingredientMatching';
@@ -8,20 +8,13 @@ import { IngredientsByCategory } from '../storage/utils/ingredientMatching';
 import {ingredientsCategoriesStore} from '../store';
 import { StackScreenProps } from '@react-navigation/stack';
 
-function extractWords(observations: OCRObservation[]): string[] {
-  const words: string[] = [];
-  observations.forEach(observation => {
-    words.push(...observation.text.split(' '));
-  });
-  return words;
-}
-
 type HomeScreenProps = StackScreenProps<any, 'X9'>;
 
 export default function HomeScreen({navigation}: HomeScreenProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [matchedObservations, setMatchedObservations] = useState<IngredientsByCategory>({});
   const {categories, fetch: fetchCategories} = ingredientsCategoriesStore();
+  const [OCRResult, setOCRResult] = useState<OCRObservation[]>([]);
 
   useEffect(() => {
     fetchCategories()
@@ -44,26 +37,39 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
     return Object.keys(matchedItens);
   }
 
+  const matchWordsOnOCRResult = async (OCRResult:OCRObservation[], categories: string[]) => {
+    const ingredientsFound = await matchIngredientsByName(OCRResult, categories);
+    setMatchedObservations(ingredientsFound || {});
+  }
+
+  const OCR = async (selectedImage:string) => {
+    try {
+      console.log('[DEBUG] Attempting OCR recognition...');
+      const result = await recognizeText(selectedImage);
+      console.log('[DEBUG] OCR result:', result);
+      setOCRResult(result);
+    } catch (error) {
+      console.error('[DEBUG] OCR failed:', error);
+      Alert.alert('OCR Error', 'Failed to process text from image');
+    }
+  }
+
+  useEffect(() => {
+    if (OCRResult.length > 0 && categories.length > 0) {
+      matchWordsOnOCRResult(OCRResult, categories)
+    }
+  }, [OCRResult, categories]);
+
   useEffect(() => {
     if (selectedImage) {
-      (async () => {
-        try {
-          console.log('[DEBUG] Attempting OCR recognition...');
-          const result = await recognizeText(selectedImage);
-          console.log('[DEBUG] OCR result:', result);
-          const matched = await matchIngredientsByName(extractWords(result), categories);
-          setMatchedObservations(matched || {});
-        } catch (error) {
-          console.error('[DEBUG] OCR failed:', error);
-          Alert.alert('OCR Error', 'Failed to process text from image');
-          setMatchedObservations({});
-        }
-      })();
+      OCR(selectedImage);
     }
-  }, [selectedImage, categories]);
+  }, [selectedImage]);
+
+  const noCategoriesSelected = () => categories?.length === 0;
 
   return (
-      categories?.length === 0 ? (
+      noCategoriesSelected()  ? (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <Text>No categories selected. Please select some categories in settings screen.</Text>
           <Button title='Go to settings' onPress={() => navigation.navigate('Settings')} />
@@ -79,8 +85,8 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
               />
               <View style={styles.divider} />
               
-              {getMatchedCategories(matchedObservations).map((cat, index) => (
-                <ObservationGroup category={cat} observations={matchedObservations[cat]} key={index} />
+              {getMatchedCategories(matchedObservations).map((cat) => (
+                <ObservationGroup category={cat} observations={matchedObservations[cat]} key={cat} />
               ))}
 
               <Button onPress={reset} title="Reset" />
@@ -88,6 +94,7 @@ export default function HomeScreen({navigation}: HomeScreenProps) {
           ) : (
             <View style={{flex: 1, justifyContent: 'center'}}>
               <Text style={{textAlign: 'center', marginBottom: 20}}>Select an image to analyze:</Text>
+              <TextInput/>
               <ImagePicker setSelectedImage={setSelectedImage} />
             </View>
           )}

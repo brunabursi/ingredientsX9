@@ -60,22 +60,18 @@ export function IngredientsLookupModel() {
       return [];
     }
   }
-  async function fetchIngredientsByCategory(category: string[]): Promise<IngredientLookup[]> {
+  async function fetchIngredientsByCategory(categories: string[]): Promise<IngredientLookup[]> {
     try {
-      const result = await db.executeSql(`SELECT * FROM ingredients_lookup WHERE category IN (${formatCategories(category)})`, []);
+      const result = await db.executeSql(`SELECT * FROM ingredients_lookup WHERE category IN (${categories.join(',')})`, []);
       const ingredients = [];
       for (let i = 0; i < result.rows.length; i++) {
         ingredients.push(result.rows.item(i));
       }
-      console.log(ingredients)
       return ingredients;
     }catch (error) {
       console.error('Error fetching ingredients by category:', error);
       return [];
     }
-  }
-  function formatCategories(categories: string[]): string {
-    return categories.map(cat => `"${cat}"`).join(',');
   }
   return {
     getAll,
