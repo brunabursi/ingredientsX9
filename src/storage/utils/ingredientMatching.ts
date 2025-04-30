@@ -1,60 +1,42 @@
+import { OCRObservation } from "../../../jsUtils/OCRmodule";
 import { IngredientsLookupModel, type IngredientLookup }from "../models/ingredientsLookup";
-import levenshtein from 'js-levenshtein'
-
+import { matchIngredients } from "./compareStrings";
 const model = IngredientsLookupModel();
 
 export type IngredientsByCategory = {
   [category: string]: IngredientLookup[]
 }
 
-function compareNames(name1: string, name2: string): boolean {
-  const distance = levenshtein(name1.toLowerCase(), name2.toLowerCase());
-  //one possible "mistake" for every 4 characters in the name
-  return distance <= Math.ceil(name1.length / 4);
-}
-
-function removeDuplicates(ingredients: string[]): string[] {
-  return ingredients.filter((ingredient, index) => ingredients.indexOf(ingredient) === index);
-}
-
 // Simple memoization cache
 const memoCache = new Map<string, IngredientsByCategory>();
 
-export async function matchIngredientsByName(ingredientName: string[], categories: string[]): Promise<IngredientsByCategory | null> {
-  // Create a cache key from the sorted inputs
+export async function matchIngredientsByName(ingredients: OCRObservation[], categories: string[]): Promise<IngredientsByCategory | null> {
+  const ingredientsText = extractWords(ingredients);
+  // Create a cache key from the normalized input
   const cacheKey = JSON.stringify({
-    ingredients: removeDuplicates(ingredientName).sort(),
+    ingredientsText: ingredientsText.trim().toLowerCase(),
     categories: [...categories].sort()
   });
-  
+
   // Check cache first
   if (memoCache.has(cacheKey)) {
     return memoCache.get(cacheKey)!;
   }
-  
+
   try {
     const allIngredients = await model.fetchIngredientsByCategory(categories);
-    const matchedIngredients: IngredientLookup[] = [];
-
-    for (const name of removeDuplicates(ingredientName)) {
-      for (const ingredient of allIngredients) {
-        if (compareNames(name, ingredient.name)) {
-          matchedIngredients.push(ingredient);
-          break;
-        }
-      }
-    }
-
-    const result = groupIngredientsByCategory(matchedIngredients);
-    
-    // Store in cache
+    const matches = matchIngredients(ingredientsText, allIngredients);
+    const result = groupIngredientsByCategory(matches);
+    console.log('[DEBUG] Matched ingredients:', result);
+  
     memoCache.set(cacheKey, result);
     return result;
-  } catch(error) {
+  } catch (error) {
     console.error('Error matching ingredient by name:', error);
     return null;
   }
 }
+
 
 const groupIngredientsByCategory = (ingredients: IngredientLookup[]): IngredientsByCategory => {
   const grouped: Record<string, IngredientLookup[]> = {};
@@ -65,4 +47,12 @@ const groupIngredientsByCategory = (ingredients: IngredientLookup[]): Ingredient
     grouped[ingredient.category].push(ingredient);
   }
   return grouped;
+}
+
+function extractWords(observations: OCRObservation[]): string {
+  let words: string = '';
+  observations.forEach(observation => {
+    words = `${words} ${observation.text}`;
+  });
+  return words.trim();
 }
