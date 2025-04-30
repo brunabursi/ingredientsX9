@@ -12,8 +12,8 @@ const ObservationGroup = ({ category, observations }:ObservationGroupProps) => {
     <>
       <Text style={styles.category}>{category}</Text>
       <View style={styles.observationContainer}>
-        {observations.map((observation, index) => (
-          <MatchedObservation observation={observation} key={index} />
+        {observations.map((observation) => (
+          <MatchedObservation observation={observation} key={observation.name} />
         ))}
       </View>
     </>
